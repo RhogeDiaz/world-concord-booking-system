@@ -132,4 +132,47 @@ router.post('/', requireAuth, bookingPostLimit, createShipmentHandler);
 // Dedicated booking endpoint
 router.post('/bookings', requireAuth, bookingPostLimit, createShipmentHandler);
 
+// Update a user shipment pickup date and status for the authenticated shipper
+router.put('/:id', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const shipperId = req.user?.id;
+    const shipmentId = req.params.id;
+    const { pickup_date, status_label } = req.body;
+
+    const sql = `
+      UPDATE shipments
+      SET
+        pickup_date = COALESCE($1::date, pickup_date),
+        status_id = COALESCE(
+          (SELECT id FROM status WHERE status_label = $2::text),
+          status_id
+        )
+      WHERE id = $3 AND shipper = $4
+      RETURNING *
+    `;
+
+    const updateResult = await query(sql, [pickup_date || null, status_label || null, shipmentId, shipperId]);
+    if (updateResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Shipment not found' });
+    }
+
+    const selectSql = `
+      SELECT ${baseSelect}
+      FROM shipments s
+      LEFT JOIN ports dp ON s.departure_port = dp.id
+      LEFT JOIN ports dtp ON s.destination_port = dtp.id
+      LEFT JOIN status st ON s.status_id = st.id
+      WHERE s.id = $1
+    `;
+    const selectResult = await query(selectSql, [shipmentId]);
+    const shipment = selectResult.rows[0];
+
+    return res.json({ shipment });
+  } catch (err: any) {
+    // eslint-disable-next-line no-console
+    console.error(err);
+    return res.status(500).json({ error: err.message || 'Server error' });
+  }
+});
+
 export default router;

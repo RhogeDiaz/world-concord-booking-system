@@ -95,6 +95,17 @@ export const api = {
     return result.shipment;
   },
 
+  async updateShipment(id: number, data: {
+    pickup_date?: string;
+    status_label?: string;
+  }) {
+    const result = await apiCall(`/shipments/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+    return result.shipment || result;
+  },
+
   async createShipment(data: {
     destination_port: number;
     departure_port: number;

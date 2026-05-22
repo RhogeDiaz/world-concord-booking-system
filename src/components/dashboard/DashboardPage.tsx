@@ -8,12 +8,14 @@ export function DashboardPage({
   onBookNow,
   onAccountInfo,
   onLogout,
+  onUpdatePickupDate,
   children,
 }: {
   transactions: Transaction[]
   onBookNow: () => void
   onAccountInfo: () => void
   onLogout: () => void
+  onUpdatePickupDate: (transactionId: number, newPickupDate: string) => Promise<void>
   children?: ReactNode
 }) {
   return (
@@ -39,7 +41,7 @@ export function DashboardPage({
           </button>
         </div>
 
-        <UserTable transactions={transactions} />
+        <UserTable transactions={transactions} onUpdatePickupDate={onUpdatePickupDate} />
       </section>
 
       {children}

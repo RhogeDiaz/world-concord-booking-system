@@ -11,11 +11,14 @@ export const statusOptions = [
   'Departed',
   'Dropped Off',
   'Completed',
+  'Rescheduled',
+  'Schedule Updated',
 ] as const
 
 export type StatusOption = (typeof statusOptions)[number]
 
 export type Transaction = {
+  id: number
   number: string
   transportNumber: string
   destinationPort: string

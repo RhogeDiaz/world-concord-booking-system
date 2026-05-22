@@ -822,7 +822,7 @@ export function AdminBookingsPage({ onBack, onLogout }: { onBack: () => void; on
                 />
               </label>
               <div className="modal-actions">
-                <button type="button" className="cancel-pill" onClick={closeDateEditor}>Cancel</button>
+                <button type="button" className="primary-pill cancel-pill" onClick={closeDateEditor}>Cancel</button>
                 <button type="button" className="primary-pill confirm-pill" onClick={saveDateEditor}>Save</button>
               </div>
             </section>

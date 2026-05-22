@@ -2,6 +2,7 @@ import type { Transaction } from '../types/app'
 
 export const initialTransactions: Transaction[] = [
   {
+    id: 1,
     number: 'WC-10021',
     transportNumber: 'WC-10021',
     destinationPort: 'Hamburg Port, Germany',
@@ -18,6 +19,7 @@ export const initialTransactions: Transaction[] = [
     status: 'Accepted',
   },
   {
+    id: 2,
     number: 'WC-10022',
     transportNumber: 'WC-10022',
     destinationPort: 'Dubai Jebel Ali, UAE',
@@ -34,6 +36,7 @@ export const initialTransactions: Transaction[] = [
     status: 'Moved',
   },
   {
+    id: 3,
     number: 'WC-10023',
     transportNumber: 'WC-10023',
     destinationPort: 'Durban Harbor, South Africa',
@@ -50,6 +53,7 @@ export const initialTransactions: Transaction[] = [
     status: 'Arrived in Port',
   },
   {
+    id: 4,
     number: 'WC-10024',
     transportNumber: 'WC-10024',
     destinationPort: 'Sydney Port, Australia',

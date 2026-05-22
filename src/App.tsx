@@ -79,6 +79,7 @@ function App() {
   const [transactions, setTransactions] = useState<Transaction[]>(initialTransactions)
 
   const mapShipmentToTransaction = (shipment: any): Transaction => ({
+    id: shipment.id,
     number: shipment.transport_number || `WC-${shipment.id}`,
     transportNumber: shipment.transport_number || 'N/A',
     destinationPort: shipment.destination_port_name || 'N/A',
@@ -103,6 +104,14 @@ function App() {
     } catch {
       setTransactions(initialTransactions)
     }
+  }
+
+  const handleUpdatePickupDate = async (transactionId: number, newPickupDate: string) => {
+    await api.updateShipment(transactionId, {
+      pickup_date: newPickupDate,
+      status_label: 'Schedule Updated',
+    })
+    await loadTransactions()
   }
 
   useEffect(() => {
@@ -405,6 +414,7 @@ function App() {
           onBookNow={() => setBookingOpen(true)}
           onAccountInfo={() => setPage('accountInfo')}
           onLogout={handleLogout}
+          onUpdatePickupDate={handleUpdatePickupDate}
         >
           {bookingOpen && (
             <BookingModal
