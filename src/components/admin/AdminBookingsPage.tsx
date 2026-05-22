@@ -127,6 +127,19 @@ export function AdminBookingsPage({ onBack, onLogout }: { onBack: () => void; on
     }
   }, [availableYears, selectedYear])
 
+  const getPortName = (portId: number | null) => {
+    if (!portId) return 'N/A'
+    return ports.find((port) => port.id === portId)?.port_name || `Port ${portId}`
+  }
+
+  const getStatusLabel = (statusId?: number | null, fallbackLabel?: string | null) => {
+    if (typeof statusId === 'number') {
+      return statuses.find((status) => status.id === statusId)?.status_label ?? fallbackLabel ?? 'N/A'
+    }
+
+    return fallbackLabel ?? 'N/A'
+  }
+
   const filteredRows = useMemo(
     () =>
       shipments.filter((shipment) => {
@@ -165,51 +178,74 @@ export function AdminBookingsPage({ onBack, onLogout }: { onBack: () => void; on
 
   const sortedRows = useMemo(() => {
     const compareValues = (left: AdminBooking, right: AdminBooking) => {
-      const getValue = (shipment: AdminBooking) => {
-        switch (sortConfig.field) {
-          case 'status_label':
-            return getStatusLabel(shipment.status_id ?? shipment.status ?? null, shipment.status_label).toLowerCase()
-          case 'transport_number':
-            return shipment.transport_number?.toLowerCase() ?? ''
-          case 'shipper_name':
-            return shipment.shipper_name.toLowerCase()
-          case 'destination_port':
-            return getPortName(shipment.destination_port).toLowerCase()
-          case 'departure_port':
-            return getPortName(shipment.departure_port).toLowerCase()
-          case 'book_date':
-            return shipment.book_date ? new Date(shipment.book_date).getTime() : 0
-          case 'container_20':
-            return shipment.container_20 ?? 0
-          case 'container_40':
-            return shipment.container_40 ?? 0
-          case 'type_of_goods_id':
-            return getGoodsTypeLabel(shipment.type_of_goods_id ?? null).toLowerCase()
-          case 'pickup_date':
-            return shipment.pickup_date ? new Date(shipment.pickup_date).getTime() : 0
-          case 'actual_time_departure':
-            return shipment.actual_time_departure ? new Date(shipment.actual_time_departure).getTime() : 0
-          case 'amount':
-            return shipment.amount ?? 0
-          default:
-            return ''
+      const direction = sortConfig.direction === 'asc' ? 1 : -1
+
+      switch (sortConfig.field) {
+        case 'status_label': {
+          const leftStatusId = left.status_id ?? left.status ?? Number.MAX_SAFE_INTEGER
+          const rightStatusId = right.status_id ?? right.status ?? Number.MAX_SAFE_INTEGER
+
+          if (leftStatusId !== rightStatusId) {
+            return (leftStatusId - rightStatusId) * direction
+          }
+
+          const leftLabel = getStatusLabel(left.status_id ?? left.status ?? null, left.status_label).toLowerCase()
+          const rightLabel = getStatusLabel(right.status_id ?? right.status ?? null, right.status_label).toLowerCase()
+          return leftLabel.localeCompare(rightLabel) * direction
         }
+        case 'transport_number': {
+          const leftValue = left.transport_number?.toLowerCase() ?? ''
+          const rightValue = right.transport_number?.toLowerCase() ?? ''
+          return leftValue.localeCompare(rightValue) * direction
+        }
+        case 'shipper_name': {
+          const leftValue = left.shipper_name?.toLowerCase() ?? ''
+          const rightValue = right.shipper_name?.toLowerCase() ?? ''
+          return leftValue.localeCompare(rightValue) * direction
+        }
+        case 'destination_port': {
+          const leftValue = getPortName(left.destination_port).toLowerCase()
+          const rightValue = getPortName(right.destination_port).toLowerCase()
+          return leftValue.localeCompare(rightValue) * direction
+        }
+        case 'departure_port': {
+          const leftValue = getPortName(left.departure_port).toLowerCase()
+          const rightValue = getPortName(right.departure_port).toLowerCase()
+          return leftValue.localeCompare(rightValue) * direction
+        }
+        case 'book_date': {
+          const leftValue = left.book_date ? new Date(left.book_date).getTime() : 0
+          const rightValue = right.book_date ? new Date(right.book_date).getTime() : 0
+          return (leftValue - rightValue) * direction
+        }
+        case 'container_20':
+          return (left.container_20 ?? 0 - (right.container_20 ?? 0)) * direction
+        case 'container_40':
+          return (left.container_40 ?? 0 - (right.container_40 ?? 0)) * direction
+        case 'type_of_goods_id': {
+          const leftValue = getGoodsTypeLabel(left.type_of_goods_id ?? null).toLowerCase()
+          const rightValue = getGoodsTypeLabel(right.type_of_goods_id ?? null).toLowerCase()
+          return leftValue.localeCompare(rightValue) * direction
+        }
+        case 'pickup_date': {
+          const leftValue = left.pickup_date ? new Date(left.pickup_date).getTime() : 0
+          const rightValue = right.pickup_date ? new Date(right.pickup_date).getTime() : 0
+          return (leftValue - rightValue) * direction
+        }
+        case 'actual_time_departure': {
+          const leftValue = left.actual_time_departure ? new Date(left.actual_time_departure).getTime() : 0
+          const rightValue = right.actual_time_departure ? new Date(right.actual_time_departure).getTime() : 0
+          return (leftValue - rightValue) * direction
+        }
+        case 'amount':
+          return ((left.amount ?? 0) - (right.amount ?? 0)) * direction
+        default:
+          return 0
       }
-
-      const leftValue = getValue(left)
-      const rightValue = getValue(right)
-
-      if (typeof leftValue === 'number' && typeof rightValue === 'number') {
-        return sortConfig.direction === 'asc' ? leftValue - rightValue : rightValue - leftValue
-      }
-
-      return sortConfig.direction === 'asc'
-        ? String(leftValue).localeCompare(String(rightValue))
-        : String(rightValue).localeCompare(String(leftValue))
     }
 
     return stableSort(searchedRows, compareValues)
-  }, [searchedRows, sortConfig])
+  }, [searchedRows, sortConfig, ports, statuses])
 
   const cycleSort = (field: string) => {
     if (sortConfig.field !== field) {
@@ -226,19 +262,6 @@ export function AdminBookingsPage({ onBack, onLogout }: { onBack: () => void; on
   const getSortIcon = (field: string) => {
     if (sortConfig.field !== field) return '⇅'
     return sortConfig.direction === 'asc' ? '↑' : '↓'
-  }
-
-  const getPortName = (portId: number | null) => {
-    if (!portId) return 'N/A'
-    return ports.find((port) => port.id === portId)?.port_name || `Port ${portId}`
-  }
-
-  const getStatusLabel = (statusId?: number | null, fallbackLabel?: string | null) => {
-    if (typeof statusId === 'number') {
-      return statuses.find((status) => status.id === statusId)?.status_label ?? fallbackLabel ?? 'N/A'
-    }
-
-    return fallbackLabel ?? 'N/A'
   }
 
   const handleMonthStep = (direction: 1 | -1) => {

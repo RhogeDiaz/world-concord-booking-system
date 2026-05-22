@@ -67,6 +67,7 @@ function App() {
   const [showLoginPassword, setShowLoginPassword] = useState(false)
   const [showSignupPassword, setShowSignupPassword] = useState(false)
   const [bookingOpen, setBookingOpen] = useState(false)
+  const [showTermsModal, setShowTermsModal] = useState(false)
   const [bookingLocations, setBookingLocations] = useState<Record<BookingLocationField, MapLocation | null>>({
     pickup: null,
     dropoff: null,
@@ -328,8 +329,14 @@ function App() {
             <label className="checkbox-row">
               <input type="checkbox" />
               <span>
-                I have read and agree the terms and conditions of World Concord International Link
-                Corporation.
+                I have read and agree to the{' '}
+                <a href="#" onClick={(event) => {
+                  event.preventDefault()
+                  setShowTermsModal(true)
+                }}>
+                  terms and conditions
+                </a>{' '}
+                of World Concord International Link Corporation.
               </span>
             </label>
 
@@ -463,6 +470,133 @@ function App() {
       {page === 'adminBookings' && (
         <AdminBookingsPage onBack={() => setPage('adminDashboard')} onLogout={handleLogout} />
       )}
+      {/* TERMS AND CONDITIONS */}
+      {showTermsModal ? (
+        <div className="modal-backdrop admin-date-editor-backdrop" role="presentation" onClick={() => setShowTermsModal(false)}>
+          <section
+            className="booking-modal admin-date-editor-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="terms-modal-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <h2 id="terms-modal-title">Terms and Conditions</h2>
+            <div className="field">
+              <h3>Agreement to Terms</h3>
+              <p className="para">These Terms of Service constitute a legally binding agreement between you, whether personally or on behalf of an entity (“you”), and World Concord (“we,” “us,” or “our”), concerning your access to and use of the website, including any related media, mobile applications, or services (collectively, the “Site”). By accessing the Site, you confirm that you have read, understood, and agree to be bound by these Terms of Service. If you do not agree with these Terms, you are prohibited from using the Site and must discontinue use immediately.</p>
+              <p className="para">Supplemental terms or policies posted on the Site are incorporated by reference. We reserve the right to modify these Terms at our sole discretion by updating the “Last Updated” date. Your continued use of the Site after such changes constitutes acceptance of the revised Terms. It is your responsibility to review these Terms periodically.</p>
+              <p className="para">If you access the Site from a jurisdiction where its use is contrary to local laws, you are solely responsible for compliance with those laws.</p>
+
+              <h3>1. Use of the Site</h3>
+              <p className="para">The Site is provided for your personal and informational use. You agree to:</p>
+              <ul>
+                <li>Use the Site in compliance with all applicable laws and these Terms.</li>
+                <li>Maintain the confidentiality of your account credentials and accept responsibility for all activities under your account.</li>
+                <li>Provide true, accurate, current, and complete registration information and update it as necessary.</li>
+              </ul>
+              <p className="para">You are prohibited from:</p>
+              <ul>
+                <li>Using the Site for any illegal or unauthorized purpose.</li>
+                <li>Accessing the Site through automated means (e.g., bots, scripts) without permission.</li>
+                <li>Systematically retrieving data to create collections or databases without our written consent.</li>
+                <li>Engaging in activities that harm the Site, such as uploading viruses or interfering with security features.</li>
+                <li>Impersonating another user, manipulating prices, or collecting user data without authorization.</li>
+              </ul>
+              <p className="para">We may suspend or terminate your account for violations of these Terms.</p>
+
+              <h3>2. Intellectual Property Rights</h3>
+              <p className="para">All content on the Site, including text, graphics, logos, software, and documentation, is the property of World Concord or its licensors and is protected by international copyright, trademark, and patent laws. You may not reproduce, modify, distribute, or create derivative works from any content without our prior written consent, except as permitted by law.</p>
+              <p className="para">We respect the intellectual property rights of others and expect users to do the same. We will investigate reports of infringement and take appropriate action, including legal proceedings if necessary. To report suspected violations, contact us at johncarlocarcedo7@gmail.com.</p>
+
+              <h3>3. User Representations</h3>
+              <p className="para">By using the Site, you represent and warrant that:</p>
+              <ul>
+                <li>All information you provide is true, accurate, current, and complete.</li>
+                <li>You will maintain and update this information as needed.</li>
+                <li>You have the legal capacity to enter into these Terms.</li>
+                <li>You will not use the Site for illegal purposes or in violation of any applicable laws.</li>
+                <li>You will not use automated tools or scripts to access the Site without authorization.</li>
+              </ul>
+              <p className="para">If you provide false or incomplete information, we may suspend or terminate your account.</p>
+
+              <h3>4. User-Generated Contributions</h3>
+              <p className="para">If you submit content to the Site (e.g., comments, feedback, or reviews, collectively “Contributions”), you grant us an unrestricted, perpetual, non-exclusive, royalty-free, worldwide license to use, reproduce, modify, publish, and distribute such Contributions for any purpose, including commercial use, in any media format. You represent and warrant that:</p>
+              <ul>
+                <li>Your Contributions do not infringe third-party rights (e.g., copyright, trademark, privacy).</li>
+                <li>You are the creator or have necessary permissions to submit the Contributions.</li>
+                <li>Your Contributions are not false, misleading, obscene, defamatory, or otherwise objectionable.</li>
+                <li>Your Contributions comply with all applicable laws and these Terms.</li>
+              </ul>
+              <p className="para">We may edit, re-categorize, or remove Contributions at our discretion without notice. You remain solely responsible for your Contributions, and we are not liable for any statements therein.</p>
+
+              <h3>5. Submissions</h3>
+              <p className="para">Any questions, comments, suggestions, or feedback about the Site (“Submissions”) are non-confidential and become our sole property. We may use and disseminate Submissions for any lawful purpose without acknowledgment or compensation to you. You warrant that Submissions are original or that you have the right to submit them.</p>
+
+              <h3>6. Payments and Invoicing</h3>
+              <p className="para">Payment terms for purchases are at our sole discretion. Unless otherwise agreed, payment must be received before order fulfillment via credit card, PayPal, or wire transfer. Invoices are due within 15 days of the invoice date. We may cancel or deny orders due to pricing errors or other issues. For non-consumer purchases, we reserve the right to charge a late penalty of 1% per month (or the maximum permitted by law) on overdue amounts.</p>
+
+              <h3>7. No Refund Policy</h3>
+              <p className="para">All sales made through the Site are final, and World Concord does not offer refunds or returns under any circumstances, except as required by applicable law. If you have concerns about a purchase, please contact us at johncarlocarcedo7@gmail.com, but note that refunds will not be provided. All purchases are subject to a shipment contract, and the risk of loss and title for items pass to you upon delivery to the carrier.</p>
+
+              <h3>8. Product Pricing and Descriptions</h3>
+              <p className="para">Product prices are as displayed and may vary based on selected options. We may modify prices or pricing formulas at any time. In case of pricing errors, we may contact you for instructions or cancel the order. Product descriptions are provided for convenience, and we do not warrant their accuracy or completeness. If a product is not as described, your sole remedy is to contact us.</p>
+
+              <h3>9. Third-Party Websites and Content</h3>
+              <p className="para">The Site may include links to third-party websites or content for your convenience. We do not monitor, endorse, or control these websites or content and are not responsible for their accuracy, reliability, or any resulting loss or damage. Your use of third-party websites or content is at your own risk, and you should review their applicable terms and policies.</p>
+
+              <h3>10. Advertisers</h3>
+              <p className="para">We may allow advertisers to display advertisements on the Site. Advertisers are solely responsible for their advertisements and any products or services offered therein. We provide only the space for such advertisements and have no further relationship with advertisers.</p>
+
+              <h3>11. User Data and Privacy</h3>
+              <p className="para">We comply with applicable data protection laws, including the EU General Data Protection Regulation (GDPR). Our Privacy Policy, incorporated herein, governs the collection, use, and disclosure of your data. We collect only necessary data with your consent, implement security measures to protect it, and retain it only as long as needed. You have the right to access, rectify, or erase your data, subject to applicable laws. For details, see our Privacy Policy on the Site.</p>
+
+              <h3>12. Electronic Communications and Transactions</h3>
+              <p className="para">By using the Site, sending emails, or completing online forms, you consent to receive electronic communications from us. You agree that all agreements, notices, and disclosures provided electronically satisfy any legal requirement for written communication. You also consent to the use of electronic signatures, contracts, and records for transactions initiated via the Site.</p>
+
+              <h3>13. Disclaimer of Warranties</h3>
+              <p className="para">The Site and its content, services, and products are provided “as is” without warranties, express or implied, including warranties of merchantability, fitness for a particular purpose, or non-infringement. We do not guarantee that the Site will be uninterrupted, error-free, or secure. Your use of the Site is at your own risk.</p>
+
+              <h3>14. Limitation of Liability</h3>
+              <p className="para">To the fullest extent permitted by law, World Concord, its directors, employees, or agents shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including loss of profits or data, arising from your use of the Site, even if advised of such damages. Our aggregate liability shall not exceed the amount paid by you for the services or products giving rise to the claim.</p>
+
+              <h3>15. Indemnification</h3>
+              <p className="para">You agree to indemnify and hold harmless World Concord, its officers, directors, employees, and agents from any claims, damages, losses, or expenses, including reasonable attorneys’ fees, arising from your use of the Site or violation of these Terms, except to the extent caused by our gross negligence or willful misconduct.</p>
+
+              <h3>16. Fraud and Prohibited Activities</h3>
+              <p className="para">We monitor for fraudulent activities and may pursue all legal remedies if fraud is detected. You are liable for costs and legal fees arising from such activities. Prohibited activities include price manipulation, unauthorized data collection, or actions that disrupt the Site’s functionality.</p>
+
+              <h3>17. Confidentiality</h3>
+              <p className="para">You agree not to disclose or exploit confidential information obtained from us, our clients, or suppliers, including customer data, without our express consent.</p>
+
+              <h3>18. Modifications and Interruptions</h3>
+              <p className="para">We may modify, suspend, or discontinue the Site or its content at any time without notice. We are not liable for any loss or inconvenience caused by such changes or interruptions, including those due to maintenance or technical issues.</p>
+
+              <h3>19. Governing Law and Jurisdiction</h3>
+              <p className="para">These Terms are governed by the laws of Philippines, without regard to conflict-of-laws principles. Any disputes arising from these Terms or the Site shall be resolved exclusively in the courts of Hong Kong. You waive objections to jurisdiction or venue in such courts. We may pursue legal action against you in your country of residence or other relevant jurisdictions for breaches of these Terms.</p>
+
+              <h3>20. Dispute Resolution</h3>
+              <p className="para">Please contact us at johncarlocarcedo7@gmail.com to raise any concerns.</p>
+
+              <h3>21. Miscellaneous</h3>
+              <ul>
+                <li className="para">Entire Agreement: These Terms, along with any posted policies, constitute the entire agreement between you and us, superseding prior agreements.</li>
+                <li className="para">Non-Assignment: You may not assign your rights under these Terms without our consent. We may assign these Terms at our discretion.</li>
+                <li className="para">Severability: If any provision is found invalid or unenforceable, it will be enforced to the maximum extent permitted, and other provisions remain in effect.</li>
+                <li className="para">Non-Waiver: Our failure to enforce any provision does not waive that or any other provision.</li>
+                <li className="para">Corrections: We may correct errors or inaccuracies on the Site without prior notice.</li>
+              </ul>
+
+              <h3>22. Contact Us</h3>
+              <p className="para">For questions or concerns about these Terms, contact us at johncarlocarcedo7@gmail.com.</p>
+            </div>
+            <div className="modal-actions">
+              <button type="button" className="cancel-pill" onClick={() => setShowTermsModal(false)}>
+                Close
+              </button>
+            </div>
+          </section>
+        </div>
+      ) : null}
     </div>
   )
 }
