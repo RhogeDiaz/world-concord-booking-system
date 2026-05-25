@@ -77,6 +77,7 @@ function App() {
     dropoff: '',
   })
   const [activeLocationField, setActiveLocationField] = useState<BookingLocationField | null>(null)
+  const [isOperator, setIsOperator] = useState(false)
   const [transactions, setTransactions] = useState<Transaction[]>(initialTransactions)
 
   const mapShipmentToTransaction = (shipment: any): Transaction => ({
@@ -139,8 +140,13 @@ function App() {
       const loginResult = await api.login({ username: email, password })
 
       if ((loginResult as any)?.is_admin) {
+        setIsOperator(false)
         setPage('adminDashboard')
+      } else if ((loginResult as any)?.is_operator) {
+        setIsOperator(true)
+        setPage('adminBookings')
       } else {
+        setIsOperator(false)
         setPage('dashboard')
       }
     } catch (err: any) {
@@ -202,6 +208,7 @@ function App() {
     setSignupError('')
     setShowLoginPassword(false)
     setShowSignupPassword(false)
+    setIsOperator(false)
     setTransactions(initialTransactions)
     setPage('login')
   }
@@ -382,8 +389,13 @@ function App() {
               setDevVerificationCode(null)
               setVerificationCode('')
               if ((verifyResult as any)?.is_admin) {
+                setIsOperator(false)
                 setPage('adminDashboard')
+              } else if ((verifyResult as any)?.is_operator) {
+                setIsOperator(true)
+                setPage('adminBookings')
               } else {
+                setIsOperator(false)
                 setPage('dashboard')
               }
             } catch (err: any) {
@@ -468,7 +480,7 @@ function App() {
       )}
 
       {page === 'adminBookings' && (
-        <AdminBookingsPage onBack={() => setPage('adminDashboard')} onLogout={handleLogout} />
+        <AdminBookingsPage onBack={() => setPage('adminDashboard')} onLogout={handleLogout} isOperator={isOperator} />
       )}
       {/* TERMS AND CONDITIONS */}
       {showTermsModal ? (

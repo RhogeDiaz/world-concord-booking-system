@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS shippers (
   company_phone VARCHAR,
   company_email VARCHAR,
   is_admin BOOLEAN NOT NULL DEFAULT FALSE,
+  is_operator BOOLEAN NOT NULL DEFAULT FALSE,
   is_verified BOOLEAN NOT NULL DEFAULT FALSE,
   verification_code VARCHAR,
   verification_expires TIMESTAMP,
@@ -87,6 +88,7 @@ INSERT INTO ports (port_name) VALUES ('Sydney, Australia') ON CONFLICT DO NOTHIN
 
 INSERT INTO status (status_label) VALUES ('Pending') ON CONFLICT DO NOTHING;
 INSERT INTO status (status_label) VALUES ('Confirmed') ON CONFLICT DO NOTHING;
+INSERT INTO status (status_label) VALUES ('Rejected') ON CONFLICT DO NOTHING;
 INSERT INTO status (status_label) VALUES ('Declined') ON CONFLICT DO NOTHING;
 INSERT INTO status (status_label) VALUES ('Picked Up') ON CONFLICT DO NOTHING;
 INSERT INTO status (status_label) VALUES ('Arrived in Port') ON CONFLICT DO NOTHING;
@@ -100,7 +102,7 @@ INSERT INTO type_of_goods (name) VALUES ('Non-Perishable') ON CONFLICT DO NOTHIN
 INSERT INTO type_of_goods (name) VALUES ('Perishable') ON CONFLICT DO NOTHING;
 
 
-INSERT INTO shippers (username, password, company_name, company_address, company_phone, company_email, is_admin, is_verified)
+INSERT INTO shippers (username, password, company_name, company_address, company_phone, company_email, is_admin, is_operator, is_verified)
 VALUES (
   'user@example.com',
   '$2b$10$NzJtf8kBypuPuaQ0aD66JuchCuBZlhdsdZ625xDt0sSx5Dgcs81.q',
@@ -108,6 +110,7 @@ VALUES (
   '123 Example St',
   '09171234567',
   'user@example.com',
+  FALSE,
   FALSE,
   TRUE
 )
@@ -117,6 +120,28 @@ ON CONFLICT (username) DO UPDATE SET
   company_phone = EXCLUDED.company_phone,
   company_email = EXCLUDED.company_email,
   is_admin = EXCLUDED.is_admin,
+  is_operator = EXCLUDED.is_operator,
+  is_verified = EXCLUDED.is_verified;
+
+INSERT INTO shippers (username, password, company_name, company_address, company_phone, company_email, is_admin, is_operator, is_verified)
+VALUES (
+  'operations@worldconcord.com',
+  '$2b$10$wuXZTs0KGpk5y9GrRgppgevC9Z8A0wjKz89QKjcdU/8E1rJkNZXz2',
+  'World Concord Operations',
+  'Operations Center',
+  '09170000000',
+  'operations@worldconcord.com',
+  FALSE,
+  TRUE,
+  TRUE
+)
+ON CONFLICT (username) DO UPDATE SET
+  company_name = EXCLUDED.company_name,
+  company_address = EXCLUDED.company_address,
+  company_phone = EXCLUDED.company_phone,
+  company_email = EXCLUDED.company_email,
+  is_admin = EXCLUDED.is_admin,
+  is_operator = EXCLUDED.is_operator,
   is_verified = EXCLUDED.is_verified;
 
 INSERT INTO shipments (shipper, destination_port, departure_port, transport_number, mbl_number, fsl_type, container_20, container_40, type_of_goods_id, pickup_location, dropoff_location, pickup_date, actual_time_departure, book_date, status_id, amount)

@@ -71,7 +71,7 @@ const escapeHtml = (value: string) =>
 
 const currentDate = new Date()
 
-export function AdminBookingsPage({ onBack, onLogout }: { onBack: () => void; onLogout: () => void }) {
+export function AdminBookingsPage({ onBack, onLogout, isOperator = false }: { onBack: () => void; onLogout: () => void; isOperator?: boolean }) {
   const [shipments, setShipments] = useState<AdminBooking[]>([])
   const [ports, setPorts] = useState<Port[]>([])
   const [statuses, setStatuses] = useState<Status[]>([])
@@ -295,7 +295,10 @@ export function AdminBookingsPage({ onBack, onLogout }: { onBack: () => void; on
       const values = editValues[shipmentId]
       if (!values) return
 
-      await api.updateAdminShipment(shipmentId, {
+await api.updateAdminShipment(shipmentId, isOperator ? {
+      status_id: values.status_id ?? undefined,
+      pickup_date: values.pickup_date || undefined,
+    } : {
         destination_port: values.destination_port,
         departure_port: values.departure_port,
         fsl_type: values.fsl_type || undefined,
@@ -507,10 +510,14 @@ export function AdminBookingsPage({ onBack, onLogout }: { onBack: () => void; on
         <header className="admin-nav">
           <div className="admin-brand">BOOKINGS</div>
           <nav className="nav-links">
-            <button type="button" className="link-button nav-link" onClick={onBack}>
-              Dashboard
-            </button>
-            <span className="nav-divider" aria-hidden="true" />
+            {!isOperator && (
+              <>
+                <button type="button" className="link-button nav-link" onClick={onBack}>
+                  Dashboard
+                </button>
+                <span className="nav-divider" aria-hidden="true" />
+              </>
+            )}
             <button type="button" className="link-button nav-link admin-logout" onClick={onLogout}>
               Log out
             </button>
@@ -528,14 +535,18 @@ export function AdminBookingsPage({ onBack, onLogout }: { onBack: () => void; on
       <header className="admin-nav">
         <div className="admin-brand">BOOKINGS</div>
         <nav className="nav-links">
-          <button type="button" className="link-button nav-link" onClick={onBack}>
-            Dashboard
-          </button>
-          <span className="nav-divider" aria-hidden="true" />
-          <button type="button" className="link-button nav-link admin-logout" onClick={onLogout}>
-            Log out
-          </button>
-        </nav>
+            {!isOperator && (
+              <>
+                <button type="button" className="link-button nav-link" onClick={onBack}>
+                  Dashboard
+                </button>
+                <span className="nav-divider" aria-hidden="true" />
+              </>
+            )}
+            <button type="button" className="link-button nav-link admin-logout" onClick={onLogout}>
+              Log out
+            </button>
+          </nav>
       </header>
 
       <section className="admin-content admin-bookings-content">
@@ -696,7 +707,7 @@ export function AdminBookingsPage({ onBack, onLogout }: { onBack: () => void; on
                         <td data-label="Transaction Number">{shipment.transport_number || 'N/A'}</td>
                         <td data-label="Shipper">{shipment.shipper_name || 'N/A'}</td>
                         <td data-label="Destination Port">
-                          {isEditing ? (
+                          {isEditing && !isOperator ? (
                             <select
                               value={values.destination_port || ''}
                               onChange={(event) =>
@@ -719,7 +730,7 @@ export function AdminBookingsPage({ onBack, onLogout }: { onBack: () => void; on
                           )}
                         </td>
                         <td data-label="Departure Port">
-                          {isEditing ? (
+                          {isEditing && !isOperator ? (
                             <select
                               value={values.departure_port || ''}
                               onChange={(event) =>
@@ -744,7 +755,7 @@ export function AdminBookingsPage({ onBack, onLogout }: { onBack: () => void; on
                         <td data-label="Book Date">{formatDate(shipment.book_date)}</td>
                         <td data-label="MBL Number">{shipment.mbl_number || 'N/A'}</td>
                         <td data-label="FSL Type">
-                          {isEditing ? (
+                          {isEditing && !isOperator ? (
                             <input
                               type="text"
                               value={values.fsl_type || ''}
@@ -772,7 +783,7 @@ export function AdminBookingsPage({ onBack, onLogout }: { onBack: () => void; on
                           )}
                         </td>
                         <td data-label="Actual Time Departure">
-                          {isEditing ? (
+                          {isEditing && !isOperator ? (
                             <button
                               type="button"
                               className="date-edit-trigger"
@@ -785,7 +796,7 @@ export function AdminBookingsPage({ onBack, onLogout }: { onBack: () => void; on
                           )}
                         </td>
                         <td data-label="Amount Recievable">
-                          {isEditing ? (
+                          {isEditing && !isOperator ? (
                             <input
                               type="number"
                               value={values.amount ?? shipment.amount ?? ''}

@@ -1,11 +1,11 @@
 import express from 'express';
 import { query } from '../db';
-import { requireAdmin, AuthRequest } from '../middleware/auth';
+import { requireAdmin, requireAdminOrOperator, AuthRequest } from '../middleware/auth';
 
 const router = express.Router();
 
-// Get all shipments with shipper and port info (admin only)
-router.get('/shipments', requireAdmin, async (req: AuthRequest, res) => {
+// Get all shipments with shipper and port info (admin or operator)
+router.get('/shipments', requireAdminOrOperator, async (req: AuthRequest, res) => {
   try {
     const sql = `
       SELECT 
@@ -47,7 +47,7 @@ router.get('/shipments', requireAdmin, async (req: AuthRequest, res) => {
 });
 
 // Get all ports (for dropdowns)
-router.get('/ports', requireAdmin, async (req: AuthRequest, res) => {
+router.get('/ports', requireAdminOrOperator, async (req: AuthRequest, res) => {
   try {
     const sql = `SELECT id, port_name FROM ports ORDER BY port_name`;
     const result = await query(sql);
@@ -60,11 +60,16 @@ router.get('/ports', requireAdmin, async (req: AuthRequest, res) => {
 });
 
 // Get all statuses (for dropdowns)
-router.get('/statuses', requireAdmin, async (req: AuthRequest, res) => {
+router.get('/statuses', requireAdminOrOperator, async (req: AuthRequest, res) => {
   try {
     const sql = `SELECT id, status_label FROM status ORDER BY id`;
     const result = await query(sql);
-    return res.json(result.rows);
+    let statuses = result.rows;
+    if (req.user?.is_operator) {
+      const allowed = ['Confirmed', 'Rejected', 'Rescheduled'];
+      statuses = statuses.filter((status: any) => allowed.includes(status.status_label));
+    }
+    return res.json(statuses);
   } catch (err: any) {
     // eslint-disable-next-line no-console
     console.error(err);
@@ -72,13 +77,38 @@ router.get('/statuses', requireAdmin, async (req: AuthRequest, res) => {
   }
 });
 
-// Update shipment details (admin only)
-router.put('/shipments/:id', requireAdmin, async (req: AuthRequest, res) => {
+// Update shipment details (admin or operator)
+router.put('/shipments/:id', requireAdminOrOperator, async (req: AuthRequest, res) => {
   try {
     const shipmentId = req.params.id;
     const { destination_port, departure_port, fsl_type, status_id, actual_time_departure, pickup_date, amount } = req.body;
+    const isOperator = !!req.user?.is_operator;
 
-    const sql = `
+    if (isOperator) {
+      if (destination_port != null || departure_port != null || fsl_type != null || actual_time_departure != null || amount != null) {
+        return res.status(403).json({ error: 'Operator access only allows status and pickup date updates.' });
+      }
+
+      if (status_id != null) {
+        const statusResult = await query('SELECT status_label FROM status WHERE id = $1', [status_id]);
+        const statusRow = statusResult.rows[0];
+        const allowed = ['Confirmed', 'Rejected', 'Rescheduled'];
+        if (!statusRow || !allowed.includes(statusRow.status_label)) {
+          return res.status(403).json({ error: 'Operator access only allows Confirmed, Rejected, or Rescheduled status updates.' });
+        }
+      }
+    }
+
+    const sql = isOperator
+      ? `
+      UPDATE shipments
+      SET 
+        status_id = COALESCE($1, status_id),
+        pickup_date = COALESCE($2::date, pickup_date)
+      WHERE id = $3
+      RETURNING *
+    `
+      : `
       UPDATE shipments
       SET 
         destination_port = COALESCE($1, destination_port),
@@ -91,16 +121,21 @@ router.put('/shipments/:id', requireAdmin, async (req: AuthRequest, res) => {
       WHERE id = $8
       RETURNING *
     `;
-    const result = await query(sql, [
-      destination_port || null,
-      departure_port || null,
-      fsl_type || null,
-      status_id || null,
-      actual_time_departure || null,
-      pickup_date || null,
-      amount != null ? amount : null,
-      shipmentId,
-    ]);
+
+    const result = await query(sql, isOperator
+      ? [status_id || null, pickup_date || null, shipmentId]
+      : [
+          destination_port || null,
+          departure_port || null,
+          fsl_type || null,
+          status_id || null,
+          actual_time_departure || null,
+          pickup_date || null,
+          amount != null ? amount : null,
+          shipmentId,
+        ]
+    );
+
     if (result.rows.length === 0) return res.status(404).json({ error: 'Shipment not found' });
     return res.json({ shipment: result.rows[0] });
   } catch (err: any) {

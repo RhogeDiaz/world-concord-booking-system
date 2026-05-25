@@ -77,6 +77,12 @@ router.post('/login', authPostLimit, async (req, res) => {
       return res.json({ token, is_admin: true });
     }
 
+    if (username === 'operations@worldconcord.com' && password === 'operations@GT.WorldConcord') {
+      const secret = process.env.JWT_SECRET as string;
+      const token = jwt.sign({ id: 0, username: 'operations@worldconcord.com', is_operator: true }, secret, { expiresIn: '7d' });
+      return res.json({ token, is_admin: false, is_operator: true });
+    }
+
     const sql = `
       SELECT
         id,
@@ -85,6 +91,7 @@ router.post('/login', authPostLimit, async (req, res) => {
         company_email,
         company_phone,
         COALESCE(is_admin, false) AS is_admin,
+        COALESCE(is_operator, false) AS is_operator,
         COALESCE(is_verified, false) AS is_verified,
         verification_code,
         verification_expires
@@ -106,6 +113,7 @@ router.post('/login', authPostLimit, async (req, res) => {
               company_email,
               company_phone,
               COALESCE(is_admin, false) AS is_admin,
+              COALESCE(is_operator, false) AS is_operator,
               COALESCE(is_verified, false) AS is_verified,
               verification_code,
               verification_expires
@@ -137,8 +145,9 @@ router.post('/login', authPostLimit, async (req, res) => {
     const secret = process.env.JWT_SECRET as string;
     const payload: any = { id: user.id, username: user.username };
     if (user.is_admin) payload.is_admin = true;
+    if (user.is_operator) payload.is_operator = true;
     const token = jwt.sign(payload, secret, { expiresIn: '7d' });
-    return res.json({ token, is_admin: !!user.is_admin });
+    return res.json({ token, is_admin: !!user.is_admin, is_operator: !!user.is_operator });
   } catch (err: any) {
     // eslint-disable-next-line no-console
     console.error(err);
