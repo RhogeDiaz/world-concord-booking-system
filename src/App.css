@@ -309,15 +309,16 @@
   box-shadow: 0 18px 50px rgba(26, 58, 143, 0.08);
 }
 
-.user-table-card {
-  overflow: auto;
-  max-height: min(62vh, 620px);
-}
-
+.table-card thead th,
 .user-table-card thead th {
   position: sticky;
   top: 0;
   z-index: 3;
+}
+
+.user-table-card {
+  overflow: auto;
+  max-height: min(62vh, 620px);
 }
 
 .user-table-card table {

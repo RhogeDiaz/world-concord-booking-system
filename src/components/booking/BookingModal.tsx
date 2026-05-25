@@ -42,7 +42,7 @@ export function BookingModal({
     20: 0,
     40: 0,
   })
-  const [goodsTypeId, setGoodsTypeId] = useState<0 | 1>(1)
+  const [goodsTypeId, setGoodsTypeId] = useState<1 | 2>(1)
   const [pickupDate, setPickupDate] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState('')
@@ -197,10 +197,10 @@ export function BookingModal({
             <select
               className="goods-select"
               value={goodsTypeId}
-              onChange={(event) => setGoodsTypeId(Number(event.target.value) as 0 | 1)}
+              onChange={(event) => setGoodsTypeId(Number(event.target.value) as 1 | 2)}
             >
-              <option value={1}>perishable</option>
-              <option value={0}>non-perishable</option>
+              <option value={1}>non-perishable</option>
+              <option value={2}>perishable</option>
             </select>
           </label>
           <label className="field location-field">

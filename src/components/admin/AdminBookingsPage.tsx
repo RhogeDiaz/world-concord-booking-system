@@ -45,8 +45,8 @@ const toDateTimeInputValue = (dateString: string | null) => {
 }
 
 const getGoodsTypeLabel = (typeOfGoodsId: number | null) => {
-  if (typeOfGoodsId === 1) return 'perishable'
-  if (typeOfGoodsId === 0) return 'non-perishable'
+  if (typeOfGoodsId === 2) return 'perishable'
+  if (typeOfGoodsId === 1) return 'non-perishable'
   return 'N/A'
 }
 

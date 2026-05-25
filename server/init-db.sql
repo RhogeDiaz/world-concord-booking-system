@@ -96,8 +96,8 @@ INSERT INTO status (status_label) VALUES ('Completed') ON CONFLICT DO NOTHING;
 INSERT INTO status (status_label) VALUES ('Rescheduled') ON CONFLICT DO NOTHING;
 INSERT INTO status (status_label) VALUES ('Schedule Updated') ON CONFLICT DO NOTHING;
 
-INSERT INTO type_of_goods (name) VALUES ('Perishable') ON CONFLICT DO NOTHING;
 INSERT INTO type_of_goods (name) VALUES ('Non-Perishable') ON CONFLICT DO NOTHING;
+INSERT INTO type_of_goods (name) VALUES ('Perishable') ON CONFLICT DO NOTHING;
 
 
 INSERT INTO shippers (username, password, company_name, company_address, company_phone, company_email, is_admin, is_verified)

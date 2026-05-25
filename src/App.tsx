@@ -87,7 +87,7 @@ function App() {
     departurePort: shipment.departure_port_name || 'N/A',
     container20: Number(shipment.container_20 ?? 0),
     container40: Number(shipment.container_40 ?? 0),
-    typeOfGoods: shipment.type_of_goods_id === 1 ? 'perishable' : shipment.type_of_goods_id === 0 ? 'non-perishable' : 'N/A',
+    typeOfGoods: shipment.type_of_goods_id === 2 ? 'perishable' : shipment.type_of_goods_id === 1 ? 'non-perishable' : 'N/A',
     fslType: shipment.fsl_type || 'N/A',
     pickup: shipment.pickup_location || 'N/A',
     dropoff: shipment.dropoff_location || 'N/A',
